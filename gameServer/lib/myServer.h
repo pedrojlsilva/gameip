@@ -14,6 +14,9 @@
 struct msg_ret_t {
   int status, client_id, size;
 };
+#ifdef __cpluplus
+extern "C"{
+#endif
 
 void serverInit(int max_clients);
 void serverReset();
@@ -25,5 +28,9 @@ int sendMsgToClient(void *msg, int size, int client_id);
 void broadcast(void *msg, int size);
 void disconnectClient(int client_id);
 int isValidId(int client_id);
+
+#ifdef __cpluplus
+}
+#endif
 
 #endif  // LIB_SERVER_H_

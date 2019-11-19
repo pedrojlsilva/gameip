@@ -1,4 +1,4 @@
-#include "server.h"
+#include "myServer.h"
 #include "default.h"
 
 struct server_view_client {
