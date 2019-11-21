@@ -39,22 +39,20 @@ int main()
       int id = acceptConnection();
       if (id != NO_CONNECTION) {
         recvMsgFromClient(client_names[id], id, WAIT_FOR_IT);
-        strcpy(str_buffer, client_names[id]);
-        strcat(str_buffer, " connected to chat");
-        broadcast(str_buffer, (int)strlen(str_buffer) + 1);
+        sendMsgToClient(&id, sizeof(int), id);
         printf("%s connected id = %d\n", client_names[id], id);
       }
 
-      struct msg_ret_t msg_ret = recvMsg(aux_buffer);
-      if (msg_ret.status == MESSAGE_OK) {
-        sprintf(str_buffer, "%s-%d: %s", client_names[msg_ret.client_id],
-                msg_ret.client_id, aux_buffer);
-        broadcast(str_buffer, (int)strlen(str_buffer) + 1);
-      } else if (msg_ret.status == DISCONNECT_MSG) {
-        sprintf(str_buffer, "%s disconnected", client_names[msg_ret.client_id]);
-        printf("%s disconnected, id = %d is free\n",
-               client_names[msg_ret.client_id], msg_ret.client_id);
-        broadcast(str_buffer, (int)strlen(str_buffer) + 1);
-      }
+//      gameBackbone game = recvMsg(aux_buffer);
+//      if (msg_ret.status == MESSAGE_OK) {
+//        sprintf(str_buffer, "%s-%d: %s", client_names[msg_ret.client_id],
+//                msg_ret.client_id, aux_buffer);
+//        broadcast(str_buffer, (int)strlen(str_buffer) + 1);
+//      } else if (msg_ret.status == DISCONNECT_MSG) {
+//        sprintf(str_buffer, "%s disconnected", client_names[msg_ret.client_id]);
+//        printf("%s disconnected, id = %d is free\n",
+//               client_names[msg_ret.client_id], msg_ret.client_id);
+//        broadcast(str_buffer, (int)strlen(str_buffer) + 1);
+//      }
     }
 }
