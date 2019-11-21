@@ -49,8 +49,9 @@ class GameGraphical{
 
         // allegro inits
         bool coreInit();
-        bool windowInit();
         bool fontInit(int size);
+        bool windowInit();
+        
 
         // getters
         ALLEGRO_DISPLAY* getWindow();
@@ -66,6 +67,7 @@ class GameGraphical{
 
         // checks
         bool isEventQueueEmpty();
+        void setId(int newId);
 
         /* fps control */
         void startTimer();
@@ -109,6 +111,7 @@ class GameGraphical{
         char *title;
         int width;
         int height;
+        int id;
 
         // FPS Control
         double startingTime;

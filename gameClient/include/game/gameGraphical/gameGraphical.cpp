@@ -84,7 +84,7 @@ bool GameGraphical::windowInit(){
 
 bool GameGraphical::fontInit(int size){
     
-    scoreBoard = al_load_font("resources/score.ttf", size, 0);
+    scoreBoard = al_load_font("../resources/score.ttf", size, 0);
 
     if(!scoreBoard){
         fprintf(stderr, "Allegro couldn't load the font\n");
@@ -195,4 +195,8 @@ void GameGraphical::drawScoreBoard(){
 
 int GameGraphical::randomMovement(){
     return ((rand() % 6) + 3);
+}
+
+void GameGraphical::setId(newId){
+    this->id=newId;
 }
