@@ -25,7 +25,7 @@ char TITLE[] = "PongGame";
 #define spacingParts 5
 
 #define tamPlayer 50
-#define playerMovement 1
+#define playerMovement 20
 
 #define collision_nheco 5
 
@@ -60,8 +60,8 @@ int sendData[9]; // armazena os dados de todos os jogadores, bola e Placar
 	*	[4] = Pos X Bola
 	*	[5] = Pos Y Bola
 	*	[6] = Placar Player 1
-  *	[7] = Placar Player 2
-  *	[8] = Status Game
+    *	[7] = Placar Player 2
+    *	[8] = Status Game
 
 
 	*/
@@ -85,7 +85,7 @@ double startingTime;
 double FPS;
 
 // Objects
-Object players[qtPlayers];
+Object players[2];
 Object ball;
 double ballRadius;
 
@@ -121,6 +121,9 @@ void flipAndClear();
 
 // draw functions
 void drawMiddleLine();
+void drawPlayers();
+void drawBall();
+void drawScoreBoard();
 
 // checks
 bool isEventQueueEmpty();
@@ -130,11 +133,6 @@ void startTimer();
 double getTimer();
 void FPSLimit();
 
-/* objects control */
-// drawing
-void drawPlayers();
-void drawBall();
-void drawScoreBoard();
 // setters
 void setBallPosition(int x, int y);
 void setPlayerPosition(int id, int x, int y);
@@ -154,7 +152,7 @@ void checkGoal();
 void addScore(int id);
 // random
 int randomMovement();
-void mountPack(int gameStatus);
+void mountPack();
 
 
 
@@ -181,19 +179,6 @@ int main() {
     }
     
 
-    
-
-
-    // if (msg_ret.status == DISCONNECT_MSG){
-    //     gameControl=0;
-    //   printf("%s disconnected, id = %d is free gameControl is %d\n",
-    //          client_names[msg_ret.client_id], msg_ret.client_id, gameControl);
-        
-    //     mountPack(gameControl);
-    //     broadcast(sendData, (int)sizeof(sendData) + 1);
-
-    // }
-    if(gameControl==2){
         struct msg_ret_t msg_ret = recvMsg(recvData);
         int infoRec=recvData[1];
         int idRec=recvData[0];
@@ -224,8 +209,12 @@ int main() {
                 }
             }
         }
+
+    if(gameControl<2){
+        sendData[8]=0;
+    }
+    if(gameControl==2){
         moveBall();
-        
         sendData[0]=players[0].x;
         sendData[1]=players[0].y;
         sendData[2]=players[1].x;
@@ -234,18 +223,21 @@ int main() {
         sendData[5]=ball.y;
         sendData[6]=placar1;
         sendData[7]=placar2;
-        sendData[8]=gameControl;
-        printf("%d\n", sendData[3]);
-        broadcast(sendData, (int)sizeof(sendData) + 1);
+        sendData[8]=2;
+        // mountPack();
+        // // sendData[3]=players[0].y;
+        // // sendData[5]=players[1].y;
+         printf("%d\n", sendData[3]);
+         FPSLimit();
+        
+    }if(placar1>9){
+        sendData[8]=3;
+    }if(placar2>9){
+        sendData[8]=4;
     }
-    // }else if(gameControl==3){
-    //     mountPack(gameControl);
-    //     broadcast(sendData, (int)sizeof(sendData) + 1);
+    
+    broadcast(sendData, (int)sizeof(sendData) + 1);
 
-    // }else if(gameControl==4){
-    //     mountPack(gameControl);
-    //     broadcast(sendData, (int)sizeof(sendData) + 1);
-    // }
     
   }
   
@@ -289,6 +281,11 @@ double getTimer(){
     return (al_get_time() - startingTime);
 }
 
+void FPSLimit(){
+    if(getTimer() < 1.0/FPS){
+        al_rest((1.0 / FPS) - getTimer());
+    }
+}
 
 
 bool isEventQueueEmpty(){
@@ -320,10 +317,6 @@ void setBallPosition(int x, int y){
 }
 
 void setPlayerPosition(int id, int x, int y){
-    if(id < 0 || id >= qtPlayers){
-        exit(-1);
-    }
-
     players[id].x = x;
     players[id].y = y;
 }
@@ -430,15 +423,6 @@ void moveBall(){
 void addScore(int id){
     if(id == 0) placar1++;
     else if(id == 1) placar2++;
-
-    // if(placar1==10){
-    //     gameControl=3;
-    // }
-    // if(placar2==10){
-    //     gameControl=4;
-    // }
-
-
     setBallPosition(width/2, height/2);
     setBallMovement(randomMovement());
     ballSpeed = 10;
@@ -449,7 +433,7 @@ int randomMovement(){
     return ((rand() % 6) + 3);
 }
 
-void mountPack(int gameStatus){
+void mountPack(){
     sendData[0]=players[0].x;
     sendData[1]=players[0].y;
     sendData[2]=players[1].x;
@@ -458,6 +442,6 @@ void mountPack(int gameStatus){
     sendData[5]=ball.y;
     sendData[6]=placar1;
     sendData[7]=placar2;
-    sendData[8]=gameStatus;
+    sendData[8]=gameControl;
 
 }

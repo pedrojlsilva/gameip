@@ -73,6 +73,10 @@ ALLEGRO_FONT *scoreBoard;
 ALLEGRO_DISPLAY *mainWindow;
 ALLEGRO_EVENT_QUEUE *eventQueue;
 ALLEGRO_EVENT allegroEvent;
+ALLEGRO_BITMAP *telaInicio = NULL;
+ALLEGRO_BITMAP *telaPlayer1 = NULL;
+ALLEGRO_BITMAP *telaPlayer2 = NULL;
+
 
 // Window parameters
 char *title;
@@ -172,6 +176,9 @@ int main() {
   if(!coreInit()) return -1;
   if(!windowInit()) return -1;
   if(!fontInit(FONT_SIZE)) return -1;
+  telaInicio = al_load_bitmap("resources/newPlayer.png");
+  telaPlayer1 = al_load_bitmap("resources/player1.png");
+  telaPlayer2 = al_load_bitmap("resources/player2.png");
 
   for(int x = 0; x < qtPlayers; x++){
       setPlayerPosition(x, positions[x][0], positions[x][1]);
@@ -186,36 +193,40 @@ int main() {
                     switch(getEvent().keyboard.keycode){
                         case ALLEGRO_KEY_UP:
                             sendData[1]=UP;
+                            sendMsgToServer(sendData,(int)sizeof(sendData) + 1);
                             break;
                         case ALLEGRO_KEY_DOWN:
                             sendData[1]=DOWN;
-
+                            sendMsgToServer(sendData,(int)sizeof(sendData) + 1);
                             break;
                     }
-                }else if(getEvent().type == ALLEGRO_EVENT_KEY_UP){
+                } if(getEvent().type == ALLEGRO_EVENT_KEY_UP){
                     if(getEvent().keyboard.keycode == ALLEGRO_KEY_UP || getEvent().keyboard.keycode == ALLEGRO_KEY_DOWN){
                         sendData[1]=NO_MOVEMENT;
+                        sendMsgToServer(sendData,(int)sizeof(sendData) + 1);
 
                     }
                     
-                } else if(getEvent().type == ALLEGRO_EVENT_DISPLAY_CLOSE){ // display closed
+                } if(getEvent().type == ALLEGRO_EVENT_DISPLAY_CLOSE){ // display closed
                     run = false;
                 }
-            sendMsgToServer(sendData,(int)sizeof(sendData) + 1);
+            
 
         }
 
 
 
 
-    recvMsgFromServer(recvData, WAIT_FOR_IT);
+    recvMsgFromServer(recvData, DONT_WAIT);
     
-    fprintf(stdout, "mensagem recebida foi: %d %d %d %d %d %d %d %d %d\n ", recvData[0], recvData[1], recvData[2]
-                                                                       , recvData[3], recvData[4], recvData[5]
-                                                                       , recvData[6], recvData[7], recvData[8]);
+    fprintf(stdout, "mensagem recebida foi: %d %d \n ",  recvData[1],  recvData[3]);
 
-    
-    if(recvData[8]==2){
+    if(recvData[8]<2){
+        al_clear_to_color(al_map_rgb(0, 0, 0));
+        al_draw_bitmap(telaInicio, 0, 0, 0);
+        al_flip_display();
+
+    }else if(recvData[8]==2){
         setBallPosition(recvData[4], recvData[5]);
         setPlayerPosition(0,recvData[0], recvData[1]);
         setPlayerPosition(1, recvData[2], recvData[3]);
@@ -227,8 +238,14 @@ int main() {
         drawBall();
         flipAndClear();
     }else if(recvData[8]==3){
+        al_clear_to_color(al_map_rgb(0, 0, 0));
+        al_draw_bitmap(telaPlayer1, 0, 0, 0);
+        al_flip_display();
 
     }else if(recvData[8]==4){
+        al_clear_to_color(al_map_rgb(0, 0, 0));
+        al_draw_bitmap(telaPlayer2, 0, 0, 0);
+        al_flip_display();
         
     }
     
@@ -253,7 +270,6 @@ void printHello() {
 }
 
 void assertConnection() {
-  printHello();
   enum conn_ret_t ans = tryConnect();
   while (ans != SERVER_UP) {
     if (ans == SERVER_DOWN) {
