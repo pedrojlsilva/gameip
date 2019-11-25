@@ -9,6 +9,7 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 #define MSG_MAX_SIZE 350
 #define BUFFER_SIZE (MSG_MAX_SIZE + 100)
@@ -241,15 +242,20 @@ int main() {
         al_clear_to_color(al_map_rgb(0, 0, 0));
         al_draw_bitmap(telaPlayer1, 0, 0, 0);
         al_flip_display();
+        sleep(5);
+        run=false;
 
     }else if(recvData[8]==4){
         al_clear_to_color(al_map_rgb(0, 0, 0));
         al_draw_bitmap(telaPlayer2, 0, 0, 0);
         al_flip_display();
+        sleep(5);
+        run=false;
         
     }
     
   }
+  destructorGame();
   return 0;
 }
 
@@ -321,6 +327,10 @@ void destructorGame(){
     al_destroy_font(scoreBoard);
     al_destroy_display(mainWindow);
     al_destroy_event_queue(eventQueue);
+    free(title);
+    free(telaPlayer2);
+    free(telaPlayer1);
+    free(telaInicio);
 }
 
 bool coreInit(){
